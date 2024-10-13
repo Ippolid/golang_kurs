@@ -4,10 +4,17 @@ import "strconv"
 
 type Value struct {
 	s string
-	d int
+	k string
 }
+
+const (
+	KindInt       string = "D"
+	KindString    string = "S"
+	KindUndefined string = "UN"
+)
+
 type Storage struct {
-	String map[string]Value
+	inner map[string]Value
 }
 
 func NewStorage() (Storage, error) {
@@ -16,41 +23,43 @@ func NewStorage() (Storage, error) {
 	}, nil
 }
 
-func (r Storage) Set(key string, value any) {
-	switch value.(type) {
-	case int:
-		l := Value{s: "", d: value.(int)}
-		r.String[key] = l
-	case string:
-		l := Value{s: value.(string), d: 0}
-		r.String[key] = l
+func (r Storage) Set(key string, value string) {
+	switch kind := getType(value); kind {
+	case KindInt:
+		r.inner[key] = Value{s: value, k: kind}
+	case KindString:
+		r.inner[key] = Value{s: value, k: kind}
+	case KindUndefined:
+		r.inner[key] = Value{s: value, k: kind}
 	}
 
 }
 
 func (r Storage) Get(key string) *string {
-	res, ok := r.String[key]
+	res, ok := r.inner[key]
 	if !ok {
 		return nil
-	} else {
-		if res.d != 0 {
-			x := strconv.Itoa(res.d)
-			return &x
-		} else {
-			x := res.s
-			return &x
-		}
 	}
+	return &res.s
 }
 func (r Storage) GetKind(key string) string {
-	res, ok := r.String[key]
-	if !ok {
-		return "Нет такого значения"
-	} else {
-		if res.d != 0 {
-			return "D"
-		} else {
-			return "S"
-		}
+	return r.inner[key].k
+}
+
+func getType(value string) string {
+	var val any
+
+	val, err := strconv.Atoi(value)
+	if err != nil {
+		val = value
+	}
+
+	switch val.(type) {
+	case int:
+		return KindInt
+	case string:
+		return KindString
+	default:
+		return KindUndefined
 	}
 }

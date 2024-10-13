@@ -8,7 +8,7 @@ import (
 func main() {
 	r, _ := storage.NewStorage()
 	r.Set("test1", "test123")
-	r.Set("inttest1", 228)
+	r.Set("inttest1", "228")
 	val1 := *r.Get("test1")
 	val2 := *r.Get("inttest1")
 	fmt.Println(val1)
