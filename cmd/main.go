@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	//"encoding/json"
 )
 
 func WriteAtomic(path string, b []byte) error {
@@ -23,16 +22,18 @@ func WriteAtomic(path string, b []byte) error {
 	}()
 
 	return os.Rename(tmpPathName, path)
-
 }
 
-var path string = "/home/ippolid/Desktop/BIGGO/internal/pkg/storage/data/storage_ma.json"
+var localdir string = Getlocalpath()
+var path string = filepath.Join(localdir, "/internal/pkg/storage/data/storageMa.json")
 
 func main() {
 	zl, _ := storage.NewStorageMa()
 
 	content, err := os.ReadFile(path)
-	if err == nil {
+	if err != nil {
+		os.Create(path)
+	} else {
 		zl.UnMarshStor(content)
 	}
 
@@ -40,13 +41,15 @@ func main() {
 	zl.RPUSH("K", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 
 	zl.LPOP("s")
+	zl.LPUSH("s", 1, 23, 3)
 
 	zl.RPOP("K")
 	fmt.Println(zl)
+	zl.RADDTOSET("s", 2, 3, 56, 56, 10, 9)
+	fmt.Println(zl)
 
-	WriteAtomic(path, zl.MarshStor())
+	p, _ := zl.MarshStor()
+
+	WriteAtomic(path, p)
 
 }
-
-//err := pl.LSET("s", 6, 23)
-//fmt.Print(err, pl)
