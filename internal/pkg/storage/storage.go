@@ -49,8 +49,7 @@ func (r Storage) Set(key string, value string, exp int64) {
 
 func (r Storage) Get(key string) *string {
 	res, ok := r.inner[key]
-	var k *string
-	k = nil
+	var k *string = nil
 	if !ok {
 		return k
 	} else if time.Now().UnixMilli() >= res.exp && res.exp != 0 {
@@ -97,47 +96,3 @@ func (r Storage) EXPIRE(key string, sec int) {
 	r.inner[key] = res
 
 }
-
-// type value struct {
-// 	v         any
-// 	expiresAt int64
-// }
-
-// func main() {
-// 	storage := make(map[string]value)
-
-// 	ttl := 10 * time.Second
-
-// 	storage["1"] = value{
-// 		v:         "a12lksdfjkl",
-// 		expiresAt: time.Now().Add(ttl).UnixMilli(),
-// 	}
-
-// 	v, ok := storage["1"]
-// 	if !ok {
-// 		log.Fatal("")
-// 	}
-
-// 	if time.Now().UnixMilli() >= v.expiresAt {
-// 		fmt.Println("expired")
-// 		return
-// 	}
-
-// 	closeChan := make(chan struct{})
-// 	go iWantToSleepFor(closeChan, time.Minute*10)
-
-// 	close(closeChan)
-
-// 	fmt.Println(v.v)
-// }
-
-// func iWantToSleepFor(closeChan chan struct{}, n time.Duration) {
-// 	for {
-// 		select {
-// 		case <-closeChan:
-// 			return
-// 		case <-time.After(n):
-// 			Clean()
-// 		}
-// 	}
-// }
