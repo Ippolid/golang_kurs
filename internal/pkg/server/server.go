@@ -49,7 +49,7 @@ func (s *Server) handlerSet(ctx *gin.Context) {
 		return
 	}
 
-	s.storage.Set(key, v.Value)
+	s.storage.Set(key, v.Value, 0)
 	ctx.AbortWithStatus(http.StatusOK)
 
 }
