@@ -1,0 +1,8 @@
+
+FROM ubuntu:22.04
+RUN mkdir /app
+
+FROM golang:1.20-alpine
+WORKDIR /app
+COPY ./echo .
+ENTRYPOINT [ "/app/echo","defaultvalue" ]

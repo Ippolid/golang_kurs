@@ -1,0 +1,29 @@
+# version: '3.8'
+
+services:
+  storage:
+    image: echo1:0.0.2
+    container_name: dz7_docker1
+    volumes:
+      - /media/ippolid/tom/BIGGO/internal/pkg/storage/data/storageMa.json  # Персистентное хранилище данных
+    environment:
+      - APP_ENV=production
+    restart: always  # Автоматический перезапуск контейнера при сбоях
+    stop_grace_period: 30s  # Ожидание 30 секунд для graceful остановки
+    stop_signal: SIGINT 
+
+volumes:
+  storage_data:
+    driver: local  # Используем локальный драйвер для тома
+
+
+
+
+# services:
+#   app:
+#     image: echo1:0.0.2
+#     container_name: dz7_docker
+#     volumes:
+#       - /media/ippolid/tom/BIGGO/internal/pkg/storage/data/storageMa.json # монтируем volume для хранения данных
+#     stop_signal: SIGINT  # graceful остановка через SIGINT
+#     #command: ["your_app_command"] # замените на команду запуска приложения

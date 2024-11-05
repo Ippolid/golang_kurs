@@ -1,14 +1,16 @@
 package storage
 
 import (
+	"encoding/json"
+	"fmt"
 	"strconv"
 	"time"
 )
 
 type Value struct {
-	s   string
-	k   string
-	exp int64
+	S   string
+	K   string
+	EXP int64
 }
 
 const (
@@ -38,11 +40,11 @@ func (r Storage) Set(key string, value string, exp int64) {
 
 	switch kind := getType(value); kind {
 	case KindInt:
-		r.inner[key] = Value{s: value, k: kind, exp: z}
+		r.inner[key] = Value{S: value, K: kind, EXP: z}
 	case KindString:
-		r.inner[key] = Value{s: value, k: kind, exp: z}
+		r.inner[key] = Value{S: value, K: kind, EXP: z}
 	case KindUndefined:
-		r.inner[key] = Value{s: value, k: kind, exp: z}
+		r.inner[key] = Value{S: value, K: kind, EXP: z}
 	}
 
 }
@@ -52,19 +54,19 @@ func (r Storage) Get(key string) *string {
 	var k *string = nil
 	if !ok {
 		return k
-	} else if time.Now().UnixMilli() >= res.exp && res.exp != 0 {
+	} else if time.Now().UnixMilli() >= res.EXP && res.EXP != 0 {
 		return k
 	}
-	return &res.s
+	return &res.S
 }
 func (r Storage) GetKind(key string) string {
 	res, ok := r.inner[key]
 	if !ok {
 		return "No value"
-	} else if time.Now().UnixMilli() >= res.exp && res.exp != 0 {
+	} else if time.Now().UnixMilli() >= res.EXP && res.EXP != 0 {
 		return "expired"
 	}
-	return res.k
+	return res.K
 }
 
 func getType(value string) string {
@@ -92,7 +94,25 @@ func (r Storage) EXPIRE(key string, sec int) {
 	}
 	ttl := time.Duration(sec) * time.Second
 	z := time.Now().Add(ttl).UnixMilli()
-	res.exp = z
+	res.EXP = z
 	r.inner[key] = res
 
+}
+
+func (s Storage) MarshStor() ([]byte, error) {
+
+	jsonInfo, err := json.Marshal(s.inner)
+
+	if err != nil {
+		fmt.Println("Ошибка записи данных:", err)
+	}
+
+	return jsonInfo, err
+}
+
+func (s *Storage) UnMarshStor(z []byte) {
+	err := json.Unmarshal([]byte(z), &s.inner)
+	if err != nil {
+		fmt.Println("Ошибка чтения JSON-данных:", err)
+	}
 }
