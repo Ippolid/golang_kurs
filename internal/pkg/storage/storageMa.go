@@ -29,6 +29,7 @@ func (r SrorageMa) MarshStor() ([]byte, error) {
 
 func (r *SrorageMa) UnMarshStor(z []byte) {
 	err := json.Unmarshal([]byte(z), &r.inner)
+	
 
 	if err != nil {
 		fmt.Println("Ошибка чтения JSON-данных:", err)
