@@ -47,6 +47,7 @@ func (s *Server) handlerSet(ctx *gin.Context) {
 
 	if err := json.NewDecoder(ctx.Request.Body).Decode(&v); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	s.storage.Set(key, v.Value)
