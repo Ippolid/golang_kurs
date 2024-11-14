@@ -34,7 +34,6 @@ func (s *Server) newAPI() *gin.Engine {
 	})
 
 	engine.GET("/scalar/get/:key", s.handlerGet)
-
 	engine.PUT("/scalar/put/:key", s.handlerSet)
 
 	return engine
