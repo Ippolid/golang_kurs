@@ -10,20 +10,21 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func setupRouter() *gin.Engine {
+func setupRouter() (*gin.Engine, error) {
 	store, err := storage.NewStorage()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	s := New(":8090", store)
 	s.Start()
-	return s.newAPI()
+	return s.newAPI(), err
 }
 
-var s = setupRouter()
+var s, err = setupRouter()
 
 func TestHealthEndpoint(t *testing.T) {
 
@@ -36,15 +37,15 @@ func TestHealthEndpoint(t *testing.T) {
 }
 
 func TestSetGetScalar(t *testing.T) {
-
 	w := httptest.NewRecorder()
 	var k Entry = Entry{Value: "ok"}
 	z, err := json.Marshal(k)
-	if err != nil {
-		t.Error(err)
-	}
+
+	require.NoError(t, err)
+
 	reader := bytes.NewReader(z)
-	req1, _ := http.NewRequest(http.MethodPut, "/scalar/put/test1", reader)
+	req1, err1 := http.NewRequest(http.MethodPut, "/scalar/put/test1", reader)
+	require.NoError(t, err1)
 	s.ServeHTTP(w, req1)
 
 	assert.Equal(t, http.StatusOK, w.Code)
