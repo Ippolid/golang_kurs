@@ -23,16 +23,15 @@ type Storage struct {
 	mu    sync.RWMutex
 }
 
-func NewStorage() (Storage, error) {
-	return Storage{
+func NewStorage() (*Storage, error) {
+	return &Storage{
 		inner: make(map[string]Value),
 	}, nil
 }
 
 func (r *Storage) Set(key string, value string, exp int64) {
 	r.mu.RLock()
-	defer r.mu.Unlock()
-
+	defer r.mu.RUnlock()
 	var z int64
 	if exp == 0 {
 		z = 0
@@ -93,7 +92,7 @@ func getType(value string) string {
 
 func (r *Storage) EXPIRE(key string, sec int) {
 	r.mu.RLock()
-	defer r.mu.Unlock()
+	defer r.mu.RUnlock()
 
 	res, ok := r.inner[key]
 	if !ok {
