@@ -3,6 +3,8 @@ package main
 import (
 	"BIGGO/internal/pkg/server"
 	"BIGGO/internal/pkg/storage"
+	"fmt"
+	"time"
 )
 
 // import (
@@ -16,8 +18,19 @@ import (
 // var path string = filepath.Join(localdir, "/internal/pkg/storage/data/storageMa.json")
 
 func main() {
-	// zl, _ := storage.NewStorageMa()
+	closeChan := make(chan struct{})
 
+	//zl, _ := storage.NewStorageMa()
+	k, _ := storage.NewStorage()
+	k.Set("lk", "1", 0)
+	//k.EXPIRE("lk", 3)
+	k.Set("lk1", "1", 0)
+	k.Set("lk2", "1", 4)
+	k.Set("lk3", "1", 3)
+	k.Set("lk4", "1", 2)
+	k.Set("lk5", "1", 1)
+
+	go storage.CleaningSession(k, closeChan, time.Second*10)
 	// content, err := os.ReadFile(path)
 	// if err != nil {
 	// 	os.Create(path)
@@ -32,11 +45,17 @@ func main() {
 	// zl.LPUSH("s", 1, 23, 3)
 
 	// zl.RPOP("K")
-	// fmt.Println(zl)
-	// zl.RADDTOSET("s", 2, 3, 56, 56, 10, 9)
-	// fmt.Println(zl)
+	time.Sleep(6 * time.Second)
+	//fmt.Println(k)
+	fmt.Print("sfdf")
+	fmt.Println(k.Get("lk"))
+	time.Sleep(6 * time.Second)
+	fmt.Println(k.GetKind("lk"))
+	//zl.RADDTOSET("s", 2, 3, 56, 56, 10, 9)
+	fmt.Println(k.Get("lk1"))
 
-	// p, _ := zl.MarshStor()
+	close(closeChan)
+	//p, _ := zl.MarshStor()
 
 	// WriteAtomic(path, p)
 	store, err := storage.NewStorage()

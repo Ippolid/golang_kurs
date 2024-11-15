@@ -21,7 +21,7 @@ func TestSetGet(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			s.Set(c.key, c.value)
+			s.Set(c.key, c.value, 0)
 
 			sValue := s.Get(c.key)
 
@@ -52,7 +52,7 @@ func TestSetGetWithType(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			s.Set(c.key, c.value)
+			s.Set(c.key, c.value, 0)
 
 			sValue := s.Get(c.key)
 
@@ -76,7 +76,7 @@ func BenchmarkGet(b *testing.B) {
 	s, _ := NewStorage()
 	k := []string{"a", "b", "c", "d", "e", "f", "g", "h", "k"}
 	for _, c := range k {
-		s.Set(c, c)
+		s.Set(c, c, 0)
 	}
 
 	for _, c := range k {
@@ -89,7 +89,7 @@ func BenchmarkSet(b *testing.B) {
 	k := []string{"a", "b", "c", "d", "e", "f", "g", "h", "k"}
 	for _, c := range k {
 		b.ResetTimer()
-		s.Set(c, c)
+		s.Set(c, c, 0)
 	}
 }
 func BenchmarkSetGET(b *testing.B) {
@@ -97,7 +97,7 @@ func BenchmarkSetGET(b *testing.B) {
 	k := []string{"a", "b", "c", "d", "e", "f", "g", "h", "k"}
 	for _, c := range k {
 		b.ResetTimer()
-		s.Set(c, c)
+		s.Set(c, c, 0)
 		s.Get(c)
 	}
 }

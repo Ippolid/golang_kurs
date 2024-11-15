@@ -13,10 +13,10 @@ type Server struct {
 	storage *storage.Storage
 }
 
-func New(host string, st storage.Storage) *Server {
+func New(host string, st *storage.Storage) *Server {
 	s := &Server{
 		host:    host,
-		storage: &st,
+		storage: st,
 	}
 
 	return s
@@ -49,7 +49,7 @@ func (s *Server) handlerSet(ctx *gin.Context) {
 		return
 	}
 
-	s.storage.Set(key, v.Value)
+	s.storage.Set(key, v.Value, 0)
 	ctx.AbortWithStatus(http.StatusOK)
 
 }
