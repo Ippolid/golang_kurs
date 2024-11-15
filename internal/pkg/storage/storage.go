@@ -107,7 +107,7 @@ func (r *Storage) EXPIRE(key string, sec int) {
 
 func (r *Storage) DeleteElem(key string) {
 	r.mu.RLock()
-	defer r.mu.Unlock()
+	defer r.mu.RUnlock()
 
 	delete(r.inner, key)
 }
