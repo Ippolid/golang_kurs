@@ -13,10 +13,10 @@ type Server struct {
 	storage *storage.Storage
 }
 
-func New(host string, st storage.Storage) *Server {
+func New(host string, st *storage.Storage) *Server {
 	s := &Server{
 		host:    host,
-		storage: &st,
+		storage: st,
 	}
 
 	return s
