@@ -36,20 +36,14 @@ func (r Storage) Set(key string, value string, exp int64) {
 		z = time.Now().Add(ttl).UnixMilli()
 	}
 
-	switch kind := getType(value); kind {
-	case KindInt:
-		r.inner[key] = Value{s: value, k: kind, exp: z}
-	case KindString:
-		r.inner[key] = Value{s: value, k: kind, exp: z}
-	case KindUndefined:
-		r.inner[key] = Value{s: value, k: kind, exp: z}
-	}
+	kind := getType(value)
+	r.inner[key] = Value{s: value, k: kind, exp: z}
 
 }
 
 func (r Storage) Get(key string) *string {
 	res, ok := r.inner[key]
-	var k *string = nil
+	var k *string
 	if !ok {
 		return k
 	} else if time.Now().UnixMilli() >= res.exp && res.exp != 0 {
@@ -62,6 +56,7 @@ func (r Storage) GetKind(key string) string {
 	if !ok {
 		return "No value"
 	} else if time.Now().UnixMilli() >= res.exp && res.exp != 0 {
+		r.DeleteElem(key)
 		return "expired"
 	}
 	return res.k
