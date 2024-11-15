@@ -1,6 +1,8 @@
 package storage
 
 import (
+	"encoding/json"
+	"fmt"
 	"strconv"
 	"sync"
 	"time"
@@ -110,4 +112,21 @@ func (r *Storage) DeleteElem(key string) {
 	defer r.mu.RUnlock()
 
 	delete(r.inner, key)
+}
+
+func (s *Storage) MarshStor() ([]byte, error) {
+	jsonInfo, err := json.Marshal(s.inner)
+
+	if err != nil {
+		fmt.Println("Ошибка записи данных:", err)
+	}
+
+	return jsonInfo, err
+}
+
+func (s *Storage) UnMarshStor(z []byte) {
+	err := json.Unmarshal([]byte(z), &s.inner)
+	if err != nil {
+		fmt.Println("Ошибка чтения JSON-данных:", err)
+	}
 }

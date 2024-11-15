@@ -4,6 +4,7 @@ import (
 	"BIGGO/internal/pkg/server"
 	"BIGGO/internal/pkg/storage"
 	"fmt"
+	"path/filepath"
 	"time"
 )
 
@@ -14,8 +15,10 @@ import (
 // 	"path/filepath"
 // )
 
-// var localdir string = Getlocalpath()
-// var path string = filepath.Join(localdir, "/internal/pkg/storage/data/storageMa.json")
+var (
+	localdir string = GetLocalPath()
+	path     string = filepath.Join(localdir, "/internal/pkg/storage/data/storageMa.json")
+)
 
 func main() {
 	closeChan := make(chan struct{})
