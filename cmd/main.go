@@ -1,6 +1,7 @@
 package main
 
 import (
+	"BIGGO/internal/pkg/server"
 	"BIGGO/internal/pkg/storage"
 	"fmt"
 	"time"
@@ -45,22 +46,23 @@ func main() {
 
 	// zl.RPOP("K")
 	time.Sleep(6 * time.Second)
-	fmt.Println(k)
+	//fmt.Println(k)
+	fmt.Print("sfdf")
 	fmt.Println(k.Get("lk"))
 	time.Sleep(6 * time.Second)
 	fmt.Println(k.GetKind("lk"))
 	//zl.RADDTOSET("s", 2, 3, 56, 56, 10, 9)
-	fmt.Println(k)
+	fmt.Println(k.Get("lk1"))
 
 	close(closeChan)
 	//p, _ := zl.MarshStor()
 
 	// WriteAtomic(path, p)
-	// store, err := storage.NewStorage()
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// s := server.New(":8090", store)
-	// s.Start()
+	store, err := storage.NewStorage()
+	if err != nil {
+		panic(err)
+	}
+	s := server.New(":8090", store)
+	s.Start()
 
 }
