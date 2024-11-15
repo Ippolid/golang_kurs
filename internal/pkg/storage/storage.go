@@ -2,6 +2,7 @@ package storage
 
 import (
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -19,15 +20,19 @@ const (
 
 type Storage struct {
 	inner map[string]Value
+	mu    sync.RWMutex
 }
 
 func NewStorage() (Storage, error) {
 	return Storage{
-		make(map[string]Value),
+		inner: make(map[string]Value),
 	}, nil
 }
 
-func (r Storage) Set(key string, value string, exp int64) {
+func (r *Storage) Set(key string, value string, exp int64) {
+	r.mu.RLock()
+	defer r.mu.Unlock()
+
 	var z int64
 	if exp == 0 {
 		z = 0
@@ -41,7 +46,10 @@ func (r Storage) Set(key string, value string, exp int64) {
 
 }
 
-func (r Storage) Get(key string) *string {
+func (r *Storage) Get(key string) *string {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
 	res, ok := r.inner[key]
 	var k *string
 	if !ok {
@@ -51,7 +59,10 @@ func (r Storage) Get(key string) *string {
 	}
 	return &res.s
 }
-func (r Storage) GetKind(key string) string {
+func (r *Storage) GetKind(key string) string {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
 	res, ok := r.inner[key]
 	if !ok {
 		return "No value"
@@ -80,7 +91,10 @@ func getType(value string) string {
 	}
 }
 
-func (r Storage) EXPIRE(key string, sec int) {
+func (r *Storage) EXPIRE(key string, sec int) {
+	r.mu.RLock()
+	defer r.mu.Unlock()
+
 	res, ok := r.inner[key]
 	if !ok {
 		return
@@ -90,4 +104,11 @@ func (r Storage) EXPIRE(key string, sec int) {
 	res.exp = z
 	r.inner[key] = res
 
+}
+
+func (r *Storage) DeleteElem(key string) {
+	r.mu.RLock()
+	defer r.mu.Unlock()
+
+	delete(r.inner, key)
 }
