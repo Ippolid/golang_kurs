@@ -102,7 +102,6 @@ func (r *Storage) EXPIRE(key string, sec int) {
 	}
 	ttl := time.Duration(sec) * time.Second
 	z := time.Now().Add(ttl).UnixMilli()
-	res.Exp = z
 	r.inner[key] = Value{S: res.S, K: res.K, Exp: z}
 
 }
@@ -118,15 +117,16 @@ func (r *Storage) MarshStor() ([]byte, error) {
 	jsonInfo, err := json.Marshal(r.inner)
 
 	if err != nil {
-		fmt.Println("Ошибка записи данных:", err)
+		return nil, fmt.Errorf("write error: %w", err)
 	}
 
 	return jsonInfo, err
 }
 
-func (r *Storage) UnMarshStor(z []byte) {
+func (r *Storage) UnMarshStor(z []byte) error {
 	err := json.Unmarshal([]byte(z), &r.inner)
 	if err != nil {
-		fmt.Println("Ошибка чтения JSON-данных:", err)
+		return fmt.Errorf("read error: %w", err)
 	}
+	return nil
 }
