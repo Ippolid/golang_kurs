@@ -21,7 +21,7 @@ func (r *Storage) Clean() {
 	z := 0
 	nowtime := time.Now().UnixMilli()
 	for i := range r.inner {
-		if r.inner[i].exp <= nowtime && r.inner[i].exp != 0 {
+		if r.inner[i].Exp <= nowtime && r.inner[i].Exp != 0 {
 			delete(r.inner, i)
 		}
 		if z > k {

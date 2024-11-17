@@ -9,9 +9,9 @@ import (
 )
 
 type Value struct {
-	s   string
-	k   string
-	exp int64
+	S   string
+	K   string
+	Exp int64
 }
 
 const (
@@ -43,7 +43,7 @@ func (r *Storage) Set(key string, value string, exp int64) {
 	}
 
 	kind := getType(value)
-	r.inner[key] = Value{s: value, k: kind, exp: z}
+	r.inner[key] = Value{S: value, K: kind, Exp: z}
 
 }
 
@@ -55,10 +55,10 @@ func (r *Storage) Get(key string) *string {
 	var k *string
 	if !ok {
 		return k
-	} else if time.Now().UnixMilli() >= res.exp && res.exp != 0 {
+	} else if time.Now().UnixMilli() >= res.Exp && res.Exp != 0 {
 		return k
 	}
-	return &res.s
+	return &res.S
 }
 func (r *Storage) GetKind(key string) string {
 	r.mu.Lock()
@@ -67,11 +67,11 @@ func (r *Storage) GetKind(key string) string {
 	res, ok := r.inner[key]
 	if !ok {
 		return "No value"
-	} else if time.Now().UnixMilli() >= res.exp && res.exp != 0 {
+	} else if time.Now().UnixMilli() >= res.Exp && res.Exp != 0 {
 		r.DeleteElem(key)
 		return "expired"
 	}
-	return res.k
+	return res.K
 }
 
 func getType(value string) string {
@@ -102,8 +102,8 @@ func (r *Storage) EXPIRE(key string, sec int) {
 	}
 	ttl := time.Duration(sec) * time.Second
 	z := time.Now().Add(ttl).UnixMilli()
-	res.exp = z
-	r.inner[key] = res
+	res.Exp = z
+	r.inner[key] = Value{S: res.S, K: res.K, Exp: z}
 
 }
 
@@ -114,8 +114,8 @@ func (r *Storage) DeleteElem(key string) {
 	delete(r.inner, key)
 }
 
-func (s *Storage) MarshStor() ([]byte, error) {
-	jsonInfo, err := json.Marshal(s.inner)
+func (r *Storage) MarshStor() ([]byte, error) {
+	jsonInfo, err := json.Marshal(r.inner)
 
 	if err != nil {
 		fmt.Println("Ошибка записи данных:", err)
@@ -124,8 +124,8 @@ func (s *Storage) MarshStor() ([]byte, error) {
 	return jsonInfo, err
 }
 
-func (s *Storage) UnMarshStor(z []byte) {
-	err := json.Unmarshal([]byte(z), &s.inner)
+func (r *Storage) UnMarshStor(z []byte) {
+	err := json.Unmarshal([]byte(z), &r.inner)
 	if err != nil {
 		fmt.Println("Ошибка чтения JSON-данных:", err)
 	}
