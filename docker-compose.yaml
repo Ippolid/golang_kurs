@@ -1,0 +1,10 @@
+services:
+  storage:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    container_name: storage_app
+    volumes:
+      # Монтируем локальную директорию для персистентности данных
+      - ./internal/pkg/storage/data:/app/internal/pkg/storage/data
+    restart: unless-stopped
