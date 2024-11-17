@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 )
 
-func Getlocalpath() string {
+func GetLocalPath() string {
 	mydir, _ := os.Getwd()
 	k := filepath.Dir(mydir)
 	return k
