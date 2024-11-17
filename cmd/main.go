@@ -1,10 +1,14 @@
 package main
 
 import (
-	"BIGGO/internal/pkg/server"
+	//"BIGGO/internal/pkg/server"
 	"BIGGO/internal/pkg/storage"
+	"errors"
 	"fmt"
+	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
 	"time"
 )
 
@@ -21,25 +25,47 @@ var (
 )
 
 func main() {
-	closeChan := make(chan struct{})
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 
-	//zl, _ := storage.NewStorageMa()
+	// Канал завершения
+	done := make(chan bool, 1)
+	// Горутина для обработки сигнала
+	go func() {
+		sig := <-signalChan
+		fmt.Println("\nПолучен сигнал:", sig)
+		done <- true
+	}()
+
 	k, _ := storage.NewStorage()
+	closeChan := make(chan struct{})
+	go storage.CleaningSession(k, closeChan, time.Second*10)
+	content, err := os.ReadFile(path)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			file, createErr := os.Create(path)
+			if createErr != nil {
+				fmt.Printf("Ошибка при создании файла: %v\n", createErr)
+				return
+			}
+			defer file.Close()
+		} else {
+			fmt.Printf("Ошибка при чтении файла: %v\n", err)
+			return
+		}
+	} else {
+		k.UnMarshStor(content)
+	}
+
+	fmt.Println(k)
+
 	k.Set("lk", "1", 0)
-	//k.EXPIRE("lk", 3)
 	k.Set("lk1", "1", 0)
+	fmt.Println(k)
 	k.Set("lk2", "1", 4)
 	k.Set("lk3", "1", 3)
 	k.Set("lk4", "1", 2)
 	k.Set("lk5", "1", 1)
-
-	go storage.CleaningSession(k, closeChan, time.Second*10)
-	// content, err := os.ReadFile(path)
-	// if err != nil {
-	// 	os.Create(path)
-	// } else {
-	// 	zl.UnMarshStor(content)
-	// }
 
 	// zl.RPUSH("s", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 	// zl.RPUSH("K", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
@@ -50,22 +76,29 @@ func main() {
 	// zl.RPOP("K")
 	time.Sleep(6 * time.Second)
 	//fmt.Println(k)
-	fmt.Print("sfdf")
+	fmt.Println("sfdf")
 	fmt.Println(k.Get("lk"))
 	time.Sleep(6 * time.Second)
 	fmt.Println(k.GetKind("lk"))
+	fmt.Println(k.GetKind("lk"))
+	fmt.Println(k)
 	//zl.RADDTOSET("s", 2, 3, 56, 56, 10, 9)
 	fmt.Println(k.Get("lk1"))
 
 	close(closeChan)
-	//p, _ := zl.MarshStor()
+	p, _ := k.MarshStor()
 
-	// WriteAtomic(path, p)
-	store, err := storage.NewStorage()
-	if err != nil {
-		panic(err)
-	}
-	s := server.New(":8090", store)
-	s.Start()
+	// store, err := storage.NewStorage()
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// s := server.New(":8090", store)
+	// s.Start()
+	fmt.Println("Приложение .")
+	<-done
+	close(done)
+	WriteAtomic(path, p)
+
+	fmt.Println("Приложение завершено.")
 
 }
